@@ -51,12 +51,14 @@ using UnityEngine;
 //    }
 //}
 
+using UnityEngine;
 using UnityEngine.AI; // Necesario para usar NavMesh
 
 public class MoverCoche : MonoBehaviour
 {
     public Transform destino; // El destino hacia donde el coche debe moverse
     private NavMeshAgent navMeshAgent; // El agente NavMesh
+    public float stopDistance = 7f; // Distancia mínima para detenerse
 
     void Start()
     {
@@ -73,9 +75,23 @@ public class MoverCoche : MonoBehaviour
         {
             // Siempre actualiza el destino en tiempo real
             navMeshAgent.SetDestination(destino.position);
+
+            // Si la distancia restante es menor que la distancia de parada, detén el coche
+            if (navMeshAgent.remainingDistance <= stopDistance && !navMeshAgent.pathPending)
+            {
+                navMeshAgent.isStopped = true; // Detiene el agente
+            }
+            else
+            {
+                navMeshAgent.isStopped = false; // Asegura que el agente sigue moviéndose si aún no ha llegado
+            }
         }
     }
 }
+
+
+
+
 
 
 

@@ -1,53 +1,41 @@
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;  // Si estás usando TextMeshPro
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private Button callTaxiButton; // Referencia al botón
-    [SerializeField] private Transform car; // El coche al que se le da la orden
-    [SerializeField] private float speed = 5f; // Velocidad del coche
-    [SerializeField] private Transform destination; // Destino al que el coche debe ir
+    public PedirUI pedirUI; // Referencia al script PedirUI
+    public GameObject destination; // Destino al que el taxi debe ir
+    public GameObject taxi;
+    public Transform positionPlayer;
 
-    private bool isTaxiCalled = false;
+    public float arrivalDistance = 10f;
+    public bool isTaxiCalled = false;
 
-    void Start()
+    private void Update()
     {
-        // Asegúrate de que el botón esté asignado en el inspector
-        if (callTaxiButton != null)
-        {
-            callTaxiButton.onClick.AddListener(CallTaxi); // Asignamos la función al botón
-        }
-    }
-
-    void Update()
-    {
+        // Verifica si el taxi ha sido llamado
         if (isTaxiCalled)
         {
-            // Mover el coche hacia el destino
-            MoveCarTowardsDestination();
+            SetDestination();
         }
+        isTaxiCalled = false;
+        CheckTaxiArrival();
     }
 
-    private void CallTaxi()
+    // Método para mover el taxi hacia el destino
+    private void SetDestination()
     {
-        // Se llama al taxi cuando se presiona el botón
-        isTaxiCalled = true;
-        Debug.Log("Taxi llamado. El coche se dirige hacia el destino.");
+        destination.transform.position = positionPlayer.position;
     }
 
-    private void MoveCarTowardsDestination()
+    private void CheckTaxiArrival()
     {
-        // Mover el coche hacia el destino
-        Vector3 direction = (destination.position - car.position).normalized;
-        car.position += direction * speed * Time.deltaTime;
+        float distance = Vector3.Distance(taxi.transform.position, positionPlayer.position); // Distancia entre el taxi y el jugador
 
-        // Comprobar si ha llegado al destino
-        if (Vector3.Distance(car.position, destination.position) < 2f)
+        if (distance <= arrivalDistance)
         {
-            isTaxiCalled = false;
-            Debug.Log("Taxi ha llegado.");
+            pedirUI.TaxiArrive();
         }
     }
 }
+
 

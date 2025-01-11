@@ -1,66 +1,63 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CarController : MonoBehaviour
 {
     private float horizontalInput, verticalInput;
-    private float currentSteerAngle, currentBreakForce;
+    private float currentSteerAngle, currentbreakForce;
     private bool isBreaking;
 
     // Settings
-    [SerializeField] private float motorForce = 1500f, breakForce = 3000f, maxSteerAngle = 30f;
+    [SerializeField] private float motorForce, breakForce, maxSteerAngle;
 
     // Wheel Colliders
     [SerializeField] private WheelCollider frontLeftWheelCollider, frontRightWheelCollider;
     [SerializeField] private WheelCollider rearLeftWheelCollider, rearRightWheelCollider;
 
-    // Wheels Transforms (para visualización)
+    // Wheels
     [SerializeField] private Transform frontLeftWheelTransform, frontRightWheelTransform;
     [SerializeField] private Transform rearLeftWheelTransform, rearRightWheelTransform;
 
-    public void SetHorizontalInput(float input)
-    {
-        horizontalInput = input;
-    }
-
-    public void SetVerticalInput(float input)
-    {
-        verticalInput = input;
-    }
-
-    public void SetBreaking(bool breaking)
-    {
-        isBreaking = breaking;
-    }
-
     private void FixedUpdate()
     {
+        GetInput();
         HandleMotor();
         HandleSteering();
         UpdateWheels();
     }
 
-    private void HandleMotor()
+    private void GetInput()
     {
-        // Aceleración
-        frontLeftWheelCollider.motorTorque = verticalInput * motorForce;
-        frontRightWheelCollider.motorTorque = verticalInput * motorForce;
+        // Steering Input
+        horizontalInput = Input.GetAxis("Horizontal");
 
-        // Frenos
-        currentBreakForce = isBreaking ? breakForce : 0f;
-        ApplyBrakes();
+        // Acceleration Input
+        verticalInput = Input.GetAxis("Vertical");
+
+        // Breaking Input
+        isBreaking = Input.GetKey(KeyCode.Space);
     }
 
-    private void ApplyBrakes()
+    private void HandleMotor()
     {
-        frontRightWheelCollider.brakeTorque = currentBreakForce;
-        frontLeftWheelCollider.brakeTorque = currentBreakForce;
-        rearLeftWheelCollider.brakeTorque = currentBreakForce;
-        rearRightWheelCollider.brakeTorque = currentBreakForce;
+        frontLeftWheelCollider.motorTorque = verticalInput * motorForce;
+        frontRightWheelCollider.motorTorque = verticalInput * motorForce;
+        currentbreakForce = isBreaking ? breakForce : 0f;
+        ApplyBreaking();
+    }
+
+    private void ApplyBreaking()
+    {
+        frontRightWheelCollider.brakeTorque = currentbreakForce;
+        frontLeftWheelCollider.brakeTorque = currentbreakForce;
+        rearLeftWheelCollider.brakeTorque = currentbreakForce;
+        rearRightWheelCollider.brakeTorque = currentbreakForce;
     }
 
     private void HandleSteering()
     {
-        // Dirección
         currentSteerAngle = maxSteerAngle * horizontalInput;
         frontLeftWheelCollider.steerAngle = currentSteerAngle;
         frontRightWheelCollider.steerAngle = currentSteerAngle;
@@ -70,8 +67,8 @@ public class CarController : MonoBehaviour
     {
         UpdateSingleWheel(frontLeftWheelCollider, frontLeftWheelTransform);
         UpdateSingleWheel(frontRightWheelCollider, frontRightWheelTransform);
-        UpdateSingleWheel(rearLeftWheelCollider, rearLeftWheelTransform);
         UpdateSingleWheel(rearRightWheelCollider, rearRightWheelTransform);
+        UpdateSingleWheel(rearLeftWheelCollider, rearLeftWheelTransform);
     }
 
     private void UpdateSingleWheel(WheelCollider wheelCollider, Transform wheelTransform)
@@ -79,8 +76,8 @@ public class CarController : MonoBehaviour
         Vector3 pos;
         Quaternion rot;
         wheelCollider.GetWorldPose(out pos, out rot);
-        wheelTransform.position = pos;
         wheelTransform.rotation = rot;
+        wheelTransform.position = pos;
     }
 }
 
