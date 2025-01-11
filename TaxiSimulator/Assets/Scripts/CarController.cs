@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class CarController : MonoBehaviour
@@ -8,9 +9,12 @@ public class CarController : MonoBehaviour
     private float horizontalInput, verticalInput;
     private float currentSteerAngle, currentbreakForce;
     private bool isBreaking;
+    private int life = 100;
 
     // Settings
     [SerializeField] private float motorForce, breakForce, maxSteerAngle;
+
+    [SerializeField] private TMP_Text lifeText;
 
     // Wheel Colliders
     [SerializeField] private WheelCollider frontLeftWheelCollider, frontRightWheelCollider;
@@ -26,6 +30,25 @@ public class CarController : MonoBehaviour
         HandleMotor();
         HandleSteering();
         UpdateWheels();
+    }
+
+    public void SetMotorForce(float force)
+    {
+        this.motorForce = force;
+    }
+
+    public float GetMotorForce()
+    {
+        return this.motorForce;
+    }
+
+    public void OnCollisionEnter(Collision collision)
+    {
+        if (collision.transform.CompareTag("Obstacle"))
+        {
+            this.life -= 10;
+            lifeText.text = this.life.ToString();
+        }
     }
 
     private void GetInput()
