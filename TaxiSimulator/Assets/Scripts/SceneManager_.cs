@@ -16,4 +16,8 @@ public class SceneManager_ : MonoBehaviour
     {
         Application.Quit();
     }
+    public void PonerPrimeraEscena()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 3);
+    }
 }

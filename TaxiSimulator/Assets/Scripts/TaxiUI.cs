@@ -6,9 +6,20 @@ using TMPro;
 
 public class TaxiUI : MonoBehaviour
 {
-    [SerializeField] private TMP_Text uiText;          // Referencia al texto (asígnalo desde el Inspector)
-    public GameObject uiButton;      // Referencia al botón (asígnalo desde el Inspector)
-    public Transform player;     // Referencia al jugador (asígnalo desde el Inspector)
+    [SerializeField] private TMP_Text uiText;
+    [SerializeField] private GameObject sphere;
+    [SerializeField] private SceneManager_ sceneManager;
+    public GameObject uiButton;      
+
+    public Transform destination;
+    public GameManager2 gameManager;
+    public Player player;
+
+    public GameObject spherePos = null;
+
+    public Vector3 destinationPosition;
+
+
 
     private void Start()
     {
@@ -20,7 +31,7 @@ public class TaxiUI : MonoBehaviour
         StartCoroutine(ShowUIAfterDelay(15));
     }
 
-    private IEnumerator ShowUIAfterDelay(float delay)
+    public IEnumerator ShowUIAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
 
@@ -30,20 +41,40 @@ public class TaxiUI : MonoBehaviour
 
     }
 
+    public IEnumerator ShowFinal(float delay)
+    {
+        // Mostrar el texto y el botón
+        uiText.text = "Entregaste el pasajero. Final del Juego";
+        yield return new WaitForSeconds(delay);
+        sceneManager.PonerPrimeraEscena();
+
+    }
+
     public void OnButtonClickRecoger()
     {
-        if (player == null)
+
+        Vector3 playerPosition = player.transform.position;
+        Vector3 spherePosition = new Vector3(playerPosition.x, 930, playerPosition.z);
+        uiText.text = "Ve a por el jugador";
+        spherePos = Instantiate(sphere, spherePosition, Quaternion.identity);
+
+        uiButton.gameObject.SetActive(false);
+    }
+
+    public void UpdateTextToDestination()
+    {
+        if (destination == null)
         {
-            Debug.LogError("No se ha asignado el jugador.");
+            Debug.LogError("No se ha asignado la posición destino.");
             return;
         }
-
-        // Mostrar las coordenadas del jugador en el texto
-        Vector3 playerPosition = player.position;
-        uiText.text = $"Coordenadas del jugador:\nX: {playerPosition.x:F2}, Y: {playerPosition.y:F2}, Z: {playerPosition.z:F2}";
-
-        // Ocultar el botón (ya no será necesario)
-        uiButton.gameObject.SetActive(false);
+        Destroy(spherePos);
+        // Obtener las coordenadas del destino
+        destinationPosition = gameManager.player.GetRandomDestination();
+        Vector3 spherePosition = new Vector3(destinationPosition.x, 930, destinationPosition.z);
+        spherePos = Instantiate(sphere, spherePosition, Quaternion.identity);
+        // Cambiar el texto para mostrar el mensaje con la posición destino
+        uiText.text = $"Lleva al cliente a la siguente posición";
     }
 }
 
